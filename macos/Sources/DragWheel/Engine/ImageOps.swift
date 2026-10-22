@@ -17,8 +17,25 @@ enum ImageOps {
     static func convert(_ input: URL, to ext: String) async throws -> URL {
         if ext == "webp" { return try await toWebP(input, suffix: "") }
         let output = OutputNaming.file(for: input, ext: ext)
-        try write(input, to: output, type: try utType(for: ext), quality: Settings.shared.qualityFraction, keepMetadata: true)
+        do {
+            try write(input, to: output, type: try utType(for: ext), quality: Settings.shared.qualityFraction, keepMetadata: true)
+        } catch where ext == "avif" && ExternalTool.ffmpeg.path != nil {
+            // Some Macs (older hardware, virtual machines) can read AVIF but not write it.
+            try await avifWithFFmpeg(input, to: output)
+        }
         return output
+    }
+
+    private static func avifWithFFmpeg(_ input: URL, to output: URL) async throws {
+        let crf = String(Int(63 - Settings.shared.quality * 0.45))   // quality 80 → crf 27
+        do {
+            try await ProcessRunner.ffmpeg(["-i", input.path, "-frames:v", "1",
+                                            "-vf", "scale=trunc(iw/2)*2:trunc(ih/2)*2,format=yuv420p",
+                                            "-c:v", "libsvtav1", "-crf", crf, output.path])
+        } catch {
+            try? FileManager.default.removeItem(at: output)
+            throw error
+        }
     }
 
     static func utType(for ext: String) throws -> UTType {

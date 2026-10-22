@@ -8,10 +8,11 @@ public enum OutputLocation { NextToSource, CustomFolder }
 /// <summary>User preferences, stored as JSON in %APPDATA%\DragWheel\settings.json.</summary>
 public sealed class Settings
 {
-    public static Settings Current { get; private set; } = Load();
-
-    public static string Folder { get; } =
+    // Computed, not stored: static initializers run in order and Load() below needs this path.
+    public static string Folder =>
         Path.Combine(Environment.GetFolderPath(Environment.SpecialFolder.ApplicationData), "DragWheel");
+
+    public static Settings Current { get; private set; } = Load();
 
     private static string FilePath => Path.Combine(Folder, "settings.json");
 
