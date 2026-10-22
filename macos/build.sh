@@ -29,7 +29,7 @@ done
 SWIFT_ARGS=(-c release --package-path "$DIR")
 if [ "$UNIVERSAL" = 1 ]; then SWIFT_ARGS+=(--arch arm64 --arch x86_64); fi
 
-echo "→ Compiling DragWheel $VERSION…"
+echo "→ Compiling DragWheel ${VERSION}…"
 swift build "${SWIFT_ARGS[@]}"
 BIN="$(swift build "${SWIFT_ARGS[@]}" --show-bin-path)/DragWheel"
 

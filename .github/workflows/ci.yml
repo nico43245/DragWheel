@@ -56,4 +56,14 @@ jobs:
         run: dotnet build windows/DragWheel.slnx -c Release
 
       - name: Test
-        run: dotnet test windows/DragWheel.slnx -c Release --no-build
+        run: dotnet test --solution windows/DragWheel.slnx -c Release --no-build
+
+      - name: Launch the app once (command-line mode)
+        run: |
+          $img = Join-Path $env:RUNNER_TEMP 'cli.bmp'
+          Add-Type -AssemblyName System.Drawing
+          (New-Object System.Drawing.Bitmap 64, 64).Save($img)
+          $exe = Get-ChildItem windows/src/DragWheel/bin/Release -Recurse -Filter DragWheel.exe | Select-Object -First 1
+          $p = Start-Process $exe.FullName -ArgumentList '--run', 'toPNG', $img -Wait -PassThru
+          if ($p.ExitCode -ne 0 -or -not (Test-Path (Join-Path $env:RUNNER_TEMP 'cli.png'))) { throw "DragWheel.exe --run failed (exit $($p.ExitCode))" }
+          Write-Host "✓ DragWheel.exe started and converted a file"

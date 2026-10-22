@@ -105,7 +105,7 @@ macos/scripts/smoke-test.sh          # runs every conversion on sample files
 
 ```powershell
 windows/scripts/fetch-model.ps1      # downloads the background-removal model, checks its SHA-256
-dotnet test windows/DragWheel.slnx
+dotnet test --solution windows/DragWheel.slnx
 windows/scripts/publish.ps1          # app folder, portable zip and installer (with Inno Setup 6)
 ```
 

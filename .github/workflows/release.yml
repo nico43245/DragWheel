@@ -57,7 +57,7 @@ jobs:
       - name: Test
         run: |
           windows/scripts/fetch-model.ps1
-          dotnet test windows/DragWheel.slnx -c Release
+          dotnet test --solution windows/DragWheel.slnx -c Release
 
       - name: Publish app, portable zip and installer
         run: windows/scripts/publish.ps1
