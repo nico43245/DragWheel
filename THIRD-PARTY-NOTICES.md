@@ -6,7 +6,7 @@ DragWheel's own code is under the [MIT License](LICENSE). The Windows app ships 
 | --- | --- | --- |
 | .NET runtime and WPF | MIT | https://github.com/dotnet |
 | Magick.NET (with ImageMagick and its delegate libraries) | Apache-2.0, plus the ImageMagick License | https://github.com/dlemstra/Magick.NET |
-| PDFsharp & MigraDoc | MIT | https://github.com/empira/PDFsharp |
+| PDFsharp & MigraDoc 6.2.x (the last MIT-licensed line) | MIT | https://github.com/empira/PDFsharp |
 | PdfPig | Apache-2.0 | https://github.com/UglyToad/PdfPig |
 | ONNX Runtime | MIT | https://github.com/microsoft/onnxruntime |
 | U²-Net (`u2netp`) model | Apache-2.0 | https://github.com/xuebinqin/U-2-Net |

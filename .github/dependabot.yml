@@ -12,6 +12,10 @@ updates:
     directory: /windows
     schedule:
       interval: monthly
+    ignore:
+      # PDFsharp 6.5+ is AGPL-3.0; DragWheel is MIT, so stay on the MIT 6.2.x line.
+      - dependency-name: PDFsharp*
+        versions: ['>=6.5.0']
     groups:
       nuget:
         patterns: ['*']

@@ -55,13 +55,21 @@ public sealed class ConversionTests : IDisposable
     [InlineData(ActionId.toBMP, MagickFormat.Bmp)]
     [InlineData(ActionId.toTIFF, MagickFormat.Tiff)]
     [InlineData(ActionId.toAVIF, MagickFormat.Avif)]
-    [InlineData(ActionId.toHEIC, MagickFormat.Heic)]
     public async Task ConvertsImages(ActionId action, MagickFormat expected)
     {
         var output = Single(await ConversionEngine.PerformAsync(action, [SamplePhoto()]));
         var info = new MagickImageInfo(output);
         Assert.Equal(expected, info.Format);
         Assert.Equal(640u, info.Width);
+    }
+
+    [Fact]
+    public async Task ConvertsHeicWhenWindowsHasTheCodec()
+    {
+        var o = Assert.Single(await ConversionEngine.PerformAsync(ActionId.toHEIC, [SamplePhoto()]));
+        Assert.SkipWhen(o.Error == ImageOps.HeicCodecHint, "HEVC/HEIF extensions not installed on this machine");
+        Assert.True(o.Succeeded, o.Error);
+        Assert.Equal(MagickFormat.Heic, new MagickImageInfo(o.Output!).Format);
     }
 
     [Fact]

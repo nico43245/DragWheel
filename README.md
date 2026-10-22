@@ -56,6 +56,7 @@ Download the latest version from the [Releases page](../../releases/latest).
 2. Windows SmartScreen may say it "protected your PC", because the app isn't code-signed. Click **More info → Run anyway**.
 3. DragWheel starts in the notification area next to the clock. Drag a file in File Explorer and press Shift.
 4. Video and audio need ffmpeg: `winget install Gyan.FFmpeg`. Restart DragWheel after installing it.
+5. Saving **HEIC** uses Windows' own codec. If DragWheel says it's missing, install **HEIF Image Extensions** and **HEVC Video Extensions** from the Microsoft Store.
 
 There's also a `Windows-portable.zip` if you'd rather not install anything. Unzip it and run `DragWheel.exe`.
 

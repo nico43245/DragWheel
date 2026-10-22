@@ -5,11 +5,58 @@ namespace DragWheel.Core;
 /// <summary>Image conversion and editing with Magick.NET (in-process, no external tools).</summary>
 public static class ImageOps
 {
-    public static string Convert(string input, string ext)
+    public static async Task<string> ConvertAsync(string input, string ext)
     {
         var output = OutputNaming.File(input, ext);
+        if (ext == "heic")
+        {
+            // Magick.NET can read HEIC but ships no HEVC encoder; Windows' own codec can write it.
+            await HeicWithWindowsCodecAsync(input, output);
+            return output;
+        }
         Write(input, output, ext, Settings.Current.Quality, keepMetadata: true);
         return output;
+    }
+
+    public const string HeicCodecHint =
+        "Saving HEIC needs Microsoft's \"HEVC Video Extensions\" and \"HEIF Image Extensions\" from the Microsoft Store.";
+
+    private static async Task HeicWithWindowsCodecAsync(string input, string output)
+    {
+        var png = ToTemporaryPng(input);
+        try
+        {
+            var source = await Windows.Storage.StorageFile.GetFileFromPathAsync(png);
+            using var inStream = await source.OpenAsync(Windows.Storage.FileAccessMode.Read);
+            var decoder = await Windows.Graphics.Imaging.BitmapDecoder.CreateAsync(inStream);
+            using var bitmap = await decoder.GetSoftwareBitmapAsync(
+                Windows.Graphics.Imaging.BitmapPixelFormat.Bgra8, Windows.Graphics.Imaging.BitmapAlphaMode.Premultiplied);
+
+            await File.WriteAllBytesAsync(output, []);
+            var target = await Windows.Storage.StorageFile.GetFileFromPathAsync(output);
+            using (var outStream = await target.OpenAsync(Windows.Storage.FileAccessMode.ReadWrite))
+            {
+                var encoder = await Windows.Graphics.Imaging.BitmapEncoder.CreateAsync(
+                    Windows.Graphics.Imaging.BitmapEncoder.HeifEncoderId, outStream);
+                encoder.SetSoftwareBitmap(bitmap);
+                await encoder.FlushAsync();
+            }
+            if (OutputNaming.Size(output) == 0) throw new DragWheelException(HeicCodecHint);
+        }
+        catch (Exception e) when (e is not DragWheelException)
+        {
+            try { File.Delete(output); } catch (IOException) { }
+            throw new DragWheelException(HeicCodecHint);
+        }
+        catch
+        {
+            try { File.Delete(output); } catch (IOException) { }
+            throw;
+        }
+        finally
+        {
+            File.Delete(png);
+        }
     }
 
     public static MagickFormat FormatFor(string ext) => ext switch

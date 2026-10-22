@@ -75,7 +75,7 @@ public static class ConversionEngine
             case ActionId.toPNG or ActionId.toWEBP or ActionId.toHEIC or ActionId.toGIF or ActionId.toAVIF
                 or ActionId.toBMP or ActionId.toTIFF or ActionId.toJPEG:
                 RequireImage(file, kind);
-                return ImageOps.Convert(file, ImageExt(action));
+                return await ImageOps.ConvertAsync(file, ImageExt(action));
 
             // Tools
             case ActionId.compressImage when kind == FileKind.Video: return await MediaOps.CompressAsync(file);

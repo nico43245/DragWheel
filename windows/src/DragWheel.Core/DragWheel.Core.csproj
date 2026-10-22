@@ -7,8 +7,8 @@
   <ItemGroup>
     <!-- Images: PNG, JPEG, WebP, HEIC, AVIF, GIF, BMP, TIFF (Apache-2.0) -->
     <PackageReference Include="Magick.NET-Q8-x64" Version="15.0.0" />
-    <!-- PDF writing, merging, splitting (MIT) -->
-    <PackageReference Include="PDFsharp-MigraDoc" Version="6.5.0" />
+    <!-- PDF writing, merging, splitting. Stay on 6.2.x: it is MIT; 6.5+ switched to AGPL-3.0. -->
+    <PackageReference Include="PDFsharp-MigraDoc" Version="6.2.4" />
     <!-- PDF text extraction (Apache-2.0) -->
     <PackageReference Include="PdfPig" Version="0.1.16" />
     <!-- On-device background removal with the U²-Net model (MIT) -->
