@@ -55,7 +55,7 @@ public static partial class PdfOps
         var output = OutputNaming.File(input, "pdf");
         var doc = new Document();
         var style = doc.Styles[StyleNames.Normal]!;
-        style.Font.Name = "Segoe UI";
+        style.Font.Name = "Arial";   // always installed, and PDFsharp's Windows font support knows it
         style.Font.Size = 11;
         style.ParagraphFormat.SpaceAfter = Unit.FromPoint(6);
         var section = doc.AddSection();
