@@ -1,0 +1,24 @@
+name: Bug report
+description: Something doesn't work as expected
+labels: [bug]
+body:
+  - type: textarea
+    attributes:
+      label: What happened?
+      description: What you did, what you expected, and what happened instead.
+    validations:
+      required: true
+  - type: dropdown
+    attributes:
+      label: Platform
+      options: [macOS, Windows]
+    validations:
+      required: true
+  - type: input
+    attributes:
+      label: DragWheel and OS version
+      placeholder: DragWheel 1.0.0 on macOS 15.3 / Windows 11 24H2
+  - type: input
+    attributes:
+      label: File type
+      description: e.g. .heic photo, .mov video. Please don't attach private files.

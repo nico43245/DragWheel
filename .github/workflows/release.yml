@@ -1,0 +1,110 @@
+name: Release
+
+# Push a tag like v1.2.3 (matching the VERSION file) to build both apps and open a draft release.
+on:
+  push:
+    tags: ['v*']
+
+permissions:
+  contents: read
+
+jobs:
+  macos:
+    name: Build macOS app
+    runs-on: macos-15
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Check the tag matches VERSION
+        run: test "v$(cat VERSION)" = "$GITHUB_REF_NAME"
+
+      - name: Install ffmpeg and webp (for the smoke test only — not bundled)
+        run: brew install ffmpeg webp
+
+      - name: Build universal app, zip and dmg
+        run: macos/build.sh --universal --package
+
+      - name: Smoke test the release build
+        run: macos/scripts/smoke-test.sh
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: macos
+          path: dist/*
+          if-no-files-found: error
+
+  windows:
+    name: Build Windows app
+    runs-on: windows-2025
+    timeout-minutes: 40
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install ffmpeg (tests only) and Inno Setup
+        run: |
+          choco install ffmpeg -y --no-progress
+          if (-not (Test-Path "${env:ProgramFiles(x86)}\Inno Setup 6\ISCC.exe")) { choco install innosetup -y --no-progress }
+
+      - name: Test
+        run: |
+          windows/scripts/fetch-model.ps1
+          dotnet test windows/DragWheel.slnx -c Release
+
+      - name: Publish app, portable zip and installer
+        run: windows/scripts/publish.ps1
+
+      - uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: windows
+          path: dist/*
+          if-no-files-found: error
+
+  release:
+    name: Draft GitHub release
+    needs: [macos, windows]
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    permissions:
+      contents: write        # create the release
+      id-token: write        # sign build provenance
+      attestations: write    # publish build provenance
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
+        with:
+          path: dist
+          merge-multiple: true
+
+      - name: Checksums
+        working-directory: dist
+        run: sha256sum * | tee SHA256SUMS.txt
+
+      # Lets anyone verify a download was built by this workflow from this repository:
+      #   gh attestation verify <file> --repo <owner>/DragWheel
+      # (GitHub only offers attestations for public repositories on free plans.)
+      - uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        if: ${{ !github.event.repository.private }}
+        with:
+          subject-path: dist/*
+
+      - name: Create draft release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          notes="$(awk -v v="## ${GITHUB_REF_NAME#v}" '$0 ~ "^## " {p = index($0, v) == 1} p' CHANGELOG.md | tail -n +2)"
+          gh release create "$GITHUB_REF_NAME" dist/* --draft --title "DragWheel ${GITHUB_REF_NAME#v}" \
+            --notes "${notes}
+
+          See the README for how to install. Verify downloads with SHA256SUMS.txt."

@@ -1,0 +1,25 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <RootNamespace>DragWheel.Core</RootNamespace>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <!-- Images: PNG, JPEG, WebP, HEIC, AVIF, GIF, BMP, TIFF (Apache-2.0) -->
+    <PackageReference Include="Magick.NET-Q8-x64" Version="15.0.0" />
+    <!-- PDF writing, merging, splitting (MIT) -->
+    <PackageReference Include="PDFsharp-MigraDoc" Version="6.5.0" />
+    <!-- PDF text extraction (Apache-2.0) -->
+    <PackageReference Include="PdfPig" Version="0.1.16" />
+    <!-- On-device background removal with the U²-Net model (MIT) -->
+    <PackageReference Include="Microsoft.ML.OnnxRuntime" Version="1.31.0" />
+    <!-- Pin past the vulnerable 8.0.1 that PDFsharp pulls in transitively. -->
+    <PackageReference Include="System.Security.Cryptography.Pkcs" Version="10.0.13" />
+  </ItemGroup>
+
+  <ItemGroup>
+    <!-- Downloaded and checksum-verified by scripts/fetch-model.ps1 / fetch-model.sh -->
+    <None Include="..\..\models\u2netp.onnx" Link="models\u2netp.onnx" CopyToOutputDirectory="PreserveNewest" Condition="Exists('..\..\models\u2netp.onnx')" />
+  </ItemGroup>
+
+</Project>

@@ -1,0 +1,16 @@
+.DS_Store
+
+# macOS
+macos/.build/
+macos/build/
+
+# Windows
+windows/**/bin/
+windows/**/obj/
+windows/publish/
+windows/models/
+*.user
+.vs/
+
+# Release output
+dist/

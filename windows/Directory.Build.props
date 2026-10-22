@@ -1,0 +1,17 @@
+<Project>
+  <PropertyGroup>
+    <TargetFramework>net10.0-windows10.0.19041.0</TargetFramework>
+    <SupportedOSPlatformVersion>10.0.19041.0</SupportedOSPlatformVersion>
+    <RuntimeIdentifier>win-x64</RuntimeIdentifier>
+    <Nullable>enable</Nullable>
+    <ImplicitUsings>enable</ImplicitUsings>
+    <LangVersion>latest</LangVersion>
+    <TreatWarningsAsErrors>false</TreatWarningsAsErrors>
+    <!-- Lets the Windows projects compile on macOS/Linux too (CI still tests on Windows). -->
+    <EnableWindowsTargeting>true</EnableWindowsTargeting>
+    <Version>$([System.IO.File]::ReadAllText('$(MSBuildThisFileDirectory)../VERSION').Trim())</Version>
+    <Company>DragWheel contributors</Company>
+    <Product>DragWheel</Product>
+    <Copyright>MIT License</Copyright>
+  </PropertyGroup>
+</Project>

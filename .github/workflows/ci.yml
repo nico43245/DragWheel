@@ -1,0 +1,59 @@
+name: CI
+
+on:
+  push:
+    branches: [main]
+  pull_request:
+  workflow_dispatch:
+
+# Least privilege: CI only reads the code. No secrets are used anywhere in this repository.
+permissions:
+  contents: read
+
+concurrency:
+  group: ci-${{ github.ref }}
+  cancel-in-progress: true
+
+jobs:
+  macos:
+    name: macOS — build & smoke test
+    runs-on: macos-15
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Install ffmpeg and webp
+        run: brew install ffmpeg webp
+
+      - name: Build
+        run: macos/build.sh
+
+      - name: Smoke test every conversion
+        run: macos/scripts/smoke-test.sh
+
+  windows:
+    name: Windows — build & test
+    runs-on: windows-2025
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - uses: actions/setup-dotnet@a98b56852c35b8e3190ac28c8c2271da59106c68 # v6.0.0
+        with:
+          dotnet-version: 10.0.x
+
+      - name: Install ffmpeg
+        run: choco install ffmpeg -y --no-progress
+
+      - name: Fetch background-removal model (checksum-verified)
+        run: windows/scripts/fetch-model.ps1
+
+      - name: Build
+        run: dotnet build windows/DragWheel.slnx -c Release
+
+      - name: Test
+        run: dotnet test windows/DragWheel.slnx -c Release --no-build

@@ -1,0 +1,9 @@
+<Solution>
+  <Folder Name="/src/">
+    <Project Path="src/DragWheel.Core/DragWheel.Core.csproj" />
+    <Project Path="src/DragWheel/DragWheel.csproj" />
+  </Folder>
+  <Folder Name="/tests/">
+    <Project Path="tests/DragWheel.Core.Tests/DragWheel.Core.Tests.csproj" />
+  </Folder>
+</Solution>
